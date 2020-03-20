@@ -28,7 +28,31 @@
 static DBusConnection *connection = 0;
 
 int system_export_log(const char *path) {
-  return copy("/var/log/messages", path);
+  char cmd[128] = {'\0'};
+  char *cmd_list[] = {
+      "cat /tmp/messages",
+      "cat /proc/uptime",
+      "cat /proc/meminfo",
+      "cat /proc/net/snmp",
+      "cat /proc/interrupts",
+      "top -b -n 1",
+      "cat /sys/class/net/eth0/speed",
+      "netstat -an",
+      "ifconfig -a",
+      "route -n",
+      "cat /etc/resolv.conf",
+      "cat /proc/net/wireless",
+  };
+  if (!access(path, F_OK)) {
+    snprintf(cmd, 127, "rm -f %s", path);
+    system(cmd);
+  }
+  for (int i = 0; i < sizeof(cmd_list) / sizeof(cmd_list[0]); i++) {
+    snprintf(cmd, 127, "echo %s >> %s", cmd_list[i], path);
+    system(cmd);
+    snprintf(cmd, 127, "%s >> %s", cmd_list[i], path);
+    system(cmd);
+  }
 }
 
 int system_upgrade(const char *path) {
@@ -221,34 +245,16 @@ DBusMessage *method_upgrade(DBusConnection *conn, DBusMessage *msg,
 }
 
 static const GDBusMethodTable server_methods[] = {
-    {
-        GDBUS_NOREPLY_METHOD("Reboot", NULL, NULL,
-        method_reboot)
-    },
-    {
-        GDBUS_NOREPLY_METHOD("FactoryReset", NULL, NULL,
-        method_factory_reset)
-    },
-    {
-        GDBUS_METHOD("ExportDB",
-        GDBUS_ARGS({"json", "s"}), GDBUS_ARGS({"json", "s"}),
-        method_export_db)
-    },
-    {
-        GDBUS_METHOD("ImportDB",
-        GDBUS_ARGS({"json", "s"}), GDBUS_ARGS({"json", "s"}),
-        method_import_db)
-    },
-    {
-        GDBUS_METHOD("ExportLog",
-        GDBUS_ARGS({"json", "s"}), GDBUS_ARGS({"json", "s"}),
-        method_export_log)
-    },
-    {
-        GDBUS_ASYNC_METHOD("Upgrade",
-        GDBUS_ARGS({"json", "s"}), GDBUS_ARGS({"json", "s"}),
-        method_upgrade)
-    },
+    {GDBUS_NOREPLY_METHOD("Reboot", NULL, NULL, method_reboot)},
+    {GDBUS_NOREPLY_METHOD("FactoryReset", NULL, NULL, method_factory_reset)},
+    {GDBUS_METHOD("ExportDB", GDBUS_ARGS({"json", "s"}),
+                  GDBUS_ARGS({"json", "s"}), method_export_db)},
+    {GDBUS_METHOD("ImportDB", GDBUS_ARGS({"json", "s"}),
+                  GDBUS_ARGS({"json", "s"}), method_import_db)},
+    {GDBUS_METHOD("ExportLog", GDBUS_ARGS({"json", "s"}),
+                  GDBUS_ARGS({"json", "s"}), method_export_log)},
+    {GDBUS_ASYNC_METHOD("Upgrade", GDBUS_ARGS({"json", "s"}),
+                        GDBUS_ARGS({"json", "s"}), method_upgrade)},
     {},
 };
 
