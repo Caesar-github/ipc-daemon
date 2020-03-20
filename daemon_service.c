@@ -25,7 +25,7 @@ static const struct process process_list[PROCESS_NUM] = {
     {"dbserver", ""},
     {"netserver", ""},
     {"storage_manager", ""},
-    {"mediaserver", "-S -c /oem/usr/share/mediaserver/mediaserver.conf -d"}};
+    {"mediaserver", "-S -c /oem/usr/share/mediaserver/mediaserver.conf"}};
 
 static bool program_running(const struct process *service) {
   FILE *fp;
