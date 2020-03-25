@@ -16,16 +16,26 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define PROCESS_NUM 4
 struct process {
   char *name;
   char *args;
 };
-static const struct process process_list[PROCESS_NUM] = {
+
+#define FACIAL_PROCESS_NUM 3
+static const struct process facial_process_list[FACIAL_PROCESS_NUM] = {
+    {"dbserver", ""},
+    {"netserver", ""},
+    {"storage_manager", ""}};
+
+#define IPC_PROCESS_NUM 4
+static const struct process ipc_process_list[IPC_PROCESS_NUM] = {
     {"dbserver", ""},
     {"netserver", ""},
     {"storage_manager", ""},
     {"mediaserver", "-S -c /oem/usr/share/mediaserver/mediaserver.conf"}};
+
+static int PROCESS_NUM = IPC_PROCESS_NUM;
+static struct process *process_list = ipc_process_list;
 
 static bool program_running(const struct process *service) {
   FILE *fp;
@@ -93,10 +103,24 @@ static gboolean program_check_and_run(gpointer user_data) {
 
 static gint timeout_tag;
 
+int daemon_services_init(int no_mediaserver) {
+  if (no_mediaserver) {
+    PROCESS_NUM = FACIAL_PROCESS_NUM;
+    process_list = facial_process_list;
+  } else {
+    PROCESS_NUM = IPC_PROCESS_NUM;
+    process_list = ipc_process_list;
+  }
+}
+
 int daemon_services_start(unsigned int timer_ms) {
   program_check_and_run(NULL);
 
-  timeout_tag = g_timeout_add(timer_ms, program_check_and_run, NULL);
+  if ( timer_ms != 0 ) {
+	  timeout_tag = g_timeout_add(timer_ms, program_check_and_run, NULL);
+  } else {
+	  timeout_tag = 0;
+  }
   return 0;
 }
 
@@ -104,11 +128,10 @@ int daemon_services_stop(void) {
   const int wait_time_ms = 100;
   int wait_count = 10;
 
-  if (!timeout_tag)
-    return -1;
-
-  g_source_remove(timeout_tag);
-  timeout_tag = 0;
+  if (timeout_tag) {
+	  g_source_remove(timeout_tag);
+	  timeout_tag = 0;
+  }
 
   while (--wait_count > 0) {
     /* killall process */

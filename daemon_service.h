@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #define SERVICE_CHECK_PERIOD_MS 3000
+int daemon_services_init(int no_mediaserver);
 int daemon_services_start(unsigned int timer_ms);
 int daemon_services_stop(void);
 
