@@ -23,7 +23,7 @@ struct process {
 
 #define FACIAL_PROCESS_NUM 3
 static const struct process facial_process_list[FACIAL_PROCESS_NUM] = {
-    {"dbserver", ""},
+    {"dbserver", "/oem/sysconfig.db"},
     {"netserver", ""},
     {"storage_manager", ""}};
 
