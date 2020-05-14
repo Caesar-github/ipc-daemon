@@ -25,7 +25,7 @@ struct process {
 static const struct process facial_process_list[FACIAL_PROCESS_NUM] = {
     {"dbserver", "/oem/sysconfig.db"},
     {"netserver", ""},
-    {"storage_manager", ""}};
+    {"storage_manager", "/oem/file.db"}};
 
 #define IPC_PROCESS_NUM 4
 static const struct process ipc_process_list[IPC_PROCESS_NUM] = {
