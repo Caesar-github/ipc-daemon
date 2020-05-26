@@ -16,6 +16,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "db_manager.h"
+
 struct process {
   char *name;
   char *args;
@@ -23,15 +25,15 @@ struct process {
 
 #define FACIAL_PROCESS_NUM 3
 static const struct process facial_process_list[FACIAL_PROCESS_NUM] = {
-    {"dbserver", "/oem/sysconfig.db"},
+    {"dbserver", SYSCONFIG_DB_RUNNING_PATH},
     {"netserver", ""},
-    {"storage_manager", "/oem/file.db"}};
+    {"storage_manager", FILE_DB_RUNNING_PATH}};
 
 #define IPC_PROCESS_NUM 4
 static const struct process ipc_process_list[IPC_PROCESS_NUM] = {
-    {"dbserver", ""},
+    {"dbserver", SYSCONFIG_DB_RUNNING_PATH},
     {"netserver", ""},
-    {"storage_manager", ""},
+    {"storage_manager", FILE_DB_RUNNING_PATH},
     {"mediaserver", "-S -c /oem/usr/share/mediaserver/mediaserver.conf"}};
 
 static int PROCESS_NUM = IPC_PROCESS_NUM;

@@ -8,9 +8,6 @@
 #include "common.h"
 #include "db_manager.h"
 
-#define SYSCONFIG_DB_DEFAULT_PATH "/oem/sysconfig.db"
-#define SYSCONFIG_DB_RUNNING_PATH "/data/sysconfig.db"
-
 int db_manager_init_db(void) {
   if (!access(SYSCONFIG_DB_RUNNING_PATH, F_OK)) {
     return 0;
