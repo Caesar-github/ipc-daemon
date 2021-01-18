@@ -24,6 +24,7 @@
 #include "system_manager.h"
 
 #define MSG_CMD_ADD_TECH 1
+#define ILLEGAL_ATTR -1
 
 static DBusConnection *connection = 0;
 
@@ -61,9 +62,9 @@ int system_upgrade(const char *path) {
   /* TODO: check firmware */
 
   if (path)
-    snprintf(cmd, 127, "update ota %s", path);
+    snprintf(cmd, 127, "updateEngine --image_url=%s --misc=update --savepath=%s --reboot &", path, path);
   else
-    snprintf(cmd, 127, "update ota");
+    return ILLEGAL_ATTR;
 
   return system(cmd);
 }
@@ -228,7 +229,11 @@ DBusMessage *method_upgrade(DBusConnection *conn, DBusMessage *msg,
   LOGD("export db path = %s\n", path);
   int ret = system_upgrade(path);
   json_object_object_add(j_ret, "iReturn", json_object_new_int(ret));
-  json_object_object_add(j_ret, "sErrMsg", json_object_new_string(""));
+  if (ret == ILLEGAL_ATTR) {
+    json_object_object_add(j_ret, "sErrMsg", json_object_new_string("update path is empty"));
+  } else {
+    json_object_object_add(j_ret, "sErrMsg", json_object_new_string(""));
+  }
 
   str = json_object_to_json_string(j_ret);
 
