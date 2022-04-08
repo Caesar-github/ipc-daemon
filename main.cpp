@@ -21,6 +21,10 @@
 #include "db_manager.h"
 #include "system_manager.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static unsigned int g_service_check_period_ms = 0;
 static unsigned int g_no_mediaserver = 0;
 
@@ -90,3 +94,6 @@ int main(int argc, char **argv) {
 
   return 0;
 }
+#ifdef __cplusplus
+}
+#endif
